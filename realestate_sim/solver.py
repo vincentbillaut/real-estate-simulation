@@ -1,19 +1,5 @@
 from sympy import symbols, Eq, nsolve
-from core import (
-    equations,
-    P,
-    fn,
-    fa,
-    full_price,
-    w,
-    wlev,
-    value_after_work,
-    dp,
-    A,
-    r,
-    n,
-    PMT,
-)
+from core import *
 from config import assumptions
 from scenarios import test_scenario
 
@@ -57,7 +43,23 @@ def solve_scenario(scenario_assumptions):
 
     # Create a list of variables to solve for (only unknowns)
     variables = []
-    for var in [P, fn, fa, full_price, w, wlev, value_after_work, dp, A, r, n, PMT]:
+    for var in [
+        P,
+        fn,
+        fa,
+        full_price,
+        w,
+        wlev,
+        value_after_work,
+        dp,
+        A,
+        r,
+        n,
+        PMT,
+        rent_monthly,
+        rent_discount,
+        net_yearly_cashflow,
+    ]:
         if var not in all_assumptions:
             variables.append(var)
 
@@ -85,6 +87,7 @@ def print_results(results):
     """Print the results in a readable format."""
     print("\nReal Estate Scenario Results:")
     print("=" * 30)
+
     print(f"Purchase Price (P): €{results[P]:,.2f}")
     print(f"Notary Fees (fn): {results[fn]*100:.1f}%")
     print(f"Agency Fees (fa): {results[fa]*100:.1f}%")
@@ -97,6 +100,9 @@ def print_results(results):
     print(f"Interest Rate (r): {results[r]*100:.1f}%")
     print(f"Loan Duration (n): {results[n]:.0f} years")
     print(f"Monthly Payment (PMT): €{results[PMT]:,.2f}")
+    print(f"Monthly Rent: €{results[rent_monthly]:,.2f}")
+    print(f"Rent Discount: {results[rent_discount]*100:.1f}%")
+    print(f"Net Yearly Cashflow: €{results[net_yearly_cashflow]:,.2f}")
 
 
 if __name__ == "__main__":

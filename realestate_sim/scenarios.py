@@ -3,6 +3,8 @@ from core import *
 test_scenario = {
     # Purchase price
     P: 117_000,
+    # Monthly rent
+    rent_monthly: 650,
     # Notary fees (frais de notaire)
     fn: 0.08,  # 8%
     # Agency fees (frais d'agence)

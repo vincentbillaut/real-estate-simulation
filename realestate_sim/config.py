@@ -7,4 +7,6 @@ assumptions = {
     n: 30,
     # Work value leverage (renovation value multiplier)
     wlev: 1.5,  # 50% value increase from renovations
+    # Rent discount
+    rent_discount: 0.333333,
 }
