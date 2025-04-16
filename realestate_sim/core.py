@@ -1,4 +1,4 @@
-from sympy import symbols, Eq
+from sympy import symbols, Eq, IndexedBase
 
 # PARAMETERS
 P, fn, fa, full_price = symbols("P fn fa full_price", real=True, positive=True)
@@ -18,6 +18,10 @@ dp, A, r, n, PMT = symbols("dp A r n PMT", real=True, positive=True)
 # n = number of years
 # PMT = monthly payment
 
+# IPMT represents the array of yearly interest payments
+IPMT = IndexedBase("IPMT", shape=(50,))
+# IPMT[i] represents the interest payment for year i+1
+
 rent_monthly, rent_discount = symbols(
     "rent_monthly rent_discount", real=True, positive=True
 )
@@ -26,6 +30,25 @@ rent_monthly, rent_discount = symbols(
 
 net_yearly_cashflow = symbols("net_yearly_cashflow", real=True, positive=True)
 
+ALL_VARIABLES = [
+    P,
+    fn,
+    fa,
+    full_price,
+    w,
+    wlev,
+    value_after_work,
+    dp,
+    A,
+    r,
+    n,
+    PMT,
+    rent_monthly,
+    rent_discount,
+    net_yearly_cashflow,
+]
+
+# Keep only the core equations
 equations = [
     Eq(PMT, A * r / 12 * (1 + r / 12) ** (n * 12) / ((1 + r / 12) ** (n * 12) - 1)),
     Eq(full_price, P * (1 + fn) * (1 + fa)),
@@ -33,3 +56,22 @@ equations = [
     Eq(A, full_price + w - dp),
     Eq(net_yearly_cashflow, rent_monthly * 12 * (1 - rent_discount) - PMT * 12),
 ]
+
+
+def calculate_ipmt(A, r, n, PMT):
+    """Calculate yearly interest payments after main variables are solved."""
+    ipmt_values = []
+    for i in range(50):
+        if i >= n:  # If beyond loan duration, interest payment is 0
+            ipmt_values.append(0)
+            continue
+        # Calculate remaining balance at start of year i
+        remaining_balance = A * (1 + r / 12) ** (12 * i) - PMT * (
+            (1 + r / 12) ** (12 * i) - 1
+        ) / (r / 12)
+        # Calculate total interest for the year
+        yearly_interest = sum(
+            [remaining_balance * (1 + r / 12) ** (m - 1) * r / 12 for m in range(1, 13)]
+        )
+        ipmt_values.append(float(yearly_interest))
+    return ipmt_values

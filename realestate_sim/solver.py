@@ -43,23 +43,7 @@ def solve_scenario(scenario_assumptions):
 
     # Create a list of variables to solve for (only unknowns)
     variables = []
-    for var in [
-        P,
-        fn,
-        fa,
-        full_price,
-        w,
-        wlev,
-        value_after_work,
-        dp,
-        A,
-        r,
-        n,
-        PMT,
-        rent_monthly,
-        rent_discount,
-        net_yearly_cashflow,
-    ]:
+    for var in ALL_VARIABLES:
         if var not in all_assumptions:
             variables.append(var)
 
@@ -79,6 +63,9 @@ def solve_scenario(scenario_assumptions):
     # Add solved values
     for var, val in zip(variables, solution):
         result[var] = float(val)
+
+    # Calculate IPMT values after solving main system
+    result[IPMT] = calculate_ipmt(result[A], result[r], result[n], result[PMT])
 
     return result
 
@@ -103,6 +90,14 @@ def print_results(results):
     print(f"Monthly Rent: €{results[rent_monthly]:,.2f}")
     print(f"Rent Discount: {results[rent_discount]*100:.1f}%")
     print(f"Net Yearly Cashflow: €{results[net_yearly_cashflow]:,.2f}")
+    print("\nYearly Interest Payments:")
+    ipmt_values = results[IPMT]
+    total_interest = 0
+    for year, interest in enumerate(ipmt_values, 1):
+        if interest > 0:  # Only print non-zero interest payments
+            print(f"Year {year}: €{interest:,.2f}")
+            total_interest += interest
+    print(f"\nTotal interests paid: €{total_interest:,.2f}")
 
 
 if __name__ == "__main__":
