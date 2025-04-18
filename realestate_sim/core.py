@@ -70,8 +70,13 @@ def calculate_ipmt(A, r, n, PMT):
             (1 + r / 12) ** (12 * i) - 1
         ) / (r / 12)
         # Calculate total interest for the year
-        yearly_interest = sum(
-            [remaining_balance * (1 + r / 12) ** (m - 1) * r / 12 for m in range(1, 13)]
-        )
+        yearly_interest = 0
+        monthly_balance = remaining_balance
+        for m in range(1, 13):
+            # Calculate interest for this month
+            monthly_interest = monthly_balance * (r / 12)
+            yearly_interest += monthly_interest
+            # Update balance for next month (reduce by payment minus interest)
+            monthly_balance = monthly_balance - (PMT - monthly_interest)
         ipmt_values.append(float(yearly_interest))
     return ipmt_values
