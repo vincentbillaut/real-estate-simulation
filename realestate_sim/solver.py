@@ -67,6 +67,27 @@ def solve_scenario(scenario_assumptions):
     # Calculate IPMT values after solving main system
     result[IPMT] = calculate_ipmt(result[A], result[r], result[n], result[PMT])
 
+    # Calculate valuation over time after solving main system
+    result[valuation] = calculate_valuation(result[value_after_work], result[appr])
+
+    # Calculate cumulated interests
+    result[cumulated_interests] = calculate_cumulated_interests(result[IPMT])
+
+    # Calculate principal owed
+    result[principal_owed] = calculate_principal_owed(
+        result[A], result[PMT], result[cumulated_interests], result[n]
+    )
+
+    # Calculate capital owned
+    result[capital_owned] = calculate_capital_owned(
+        result[valuation], result[principal_owed]
+    )
+
+    # Calculate revenue
+    result[revenue] = calculate_revenue(
+        result[rent_monthly], result[rent_discount], result[appr]
+    )
+
     return result
 
 
@@ -90,14 +111,42 @@ def print_results(results):
     print(f"Monthly Rent: €{results[rent_monthly]:,.2f}")
     print(f"Rent Discount: {results[rent_discount]*100:.1f}%")
     print(f"Net Yearly Cashflow: €{results[net_yearly_cashflow]:,.2f}")
-    print("\nYearly Interest Payments:")
-    ipmt_values = results[IPMT]
-    total_interest = 0
-    for year, interest in enumerate(ipmt_values, 1):
-        if interest > 0:  # Only print non-zero interest payments
-            print(f"Year {year}: €{interest:,.2f}")
-            total_interest += interest
-    print(f"\nTotal interests paid: €{total_interest:,.2f}")
+    print(f"Appreciation rate: {results[appr]*100:.1f}%")
+
+    print("\nTemporal Analysis:")
+    print("=" * 30)
+    # Print the data in a table format with columns
+    print(
+        f"{'Year':<5} {'Property Value':<15} {'Principal Owed':<15} {'Capital Owned':<15} {'Revenue':<15} {'Interest Paid':<15} {'Cumulative Interest':<20}"
+    )
+    print("-" * 100)
+
+    # Print data for specific years (0, 5, 10, 15, 20, 25, 30)
+    years_to_display = [0, 5, 10, 15, 20, 25, 30]
+    for year in years_to_display:
+        if year < 50:  # Ensure we don't go beyond our data
+            print(
+                f"{year:<5} "
+                + f"€{results[valuation][year]:,.2f}".ljust(15)
+                + " "
+                + f"€{results[principal_owed][year]:,.2f}".ljust(15)
+                + " "
+                + f"€{results[capital_owned][year]:,.2f}".ljust(15)
+                + " "
+                + f"€{results[revenue][year]:,.2f}".ljust(15)
+                + " "
+                + (
+                    f"€{results[IPMT][year]:,.2f}".ljust(15)
+                    if year < len(results[IPMT])
+                    else "€0.00".ljust(15)
+                )
+                + " "
+                + f"€{results[cumulated_interests][year]:,.2f}".ljust(20)
+            )
+
+    # Calculate total interest paid
+    total_interest = sum(results[IPMT])
+    print(f"\nTotal interests paid over the loan duration: €{total_interest:,.2f}")
 
 
 if __name__ == "__main__":

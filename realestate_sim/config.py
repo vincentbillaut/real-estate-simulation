@@ -9,4 +9,6 @@ assumptions = {
     wlev: 1.5,  # 50% value increase from renovations
     # Rent discount
     rent_discount: 0.333333,
+    # Appreciation
+    appr: 0.01,
 }
